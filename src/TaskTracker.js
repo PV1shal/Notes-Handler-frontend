@@ -6,7 +6,7 @@ function TaskTracker() {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    const storedName = localStorage.getItem("userName");
+    const storedName = localStorage.getItem("loggedInUser");
     if (storedName) {
       setUserName(storedName);
     }
@@ -14,7 +14,7 @@ function TaskTracker() {
 
   useEffect(() => {
     if (userName) {
-      localStorage.setItem("userName", userName);
+      localStorage.setItem("loggedInUser", userName);
     }
   }, [userName]);
 
@@ -33,7 +33,7 @@ function TaskTracker() {
 
   return (
     <div className="container">
-      <h1>Task Tracker</h1>
+      <h1>Task Tracker {userName}</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
