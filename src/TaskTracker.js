@@ -1,20 +1,34 @@
 import React, { useState, useEffect } from "react";
+import tasksServices from "./Services/tasksServices";
 
-function TaskTracker() { 
+function TaskTracker() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [userName, setUserName] = useState("");
   const [taskDescription, setDescription] = useState('');
   const [taskStatus, setStatus] = useState('');
   const [taskDueDay, setDueDay] = useState('');
-  const [showEditTask, setShowEditTask] = useState (false)
-  const [clickedTask, setClickedTask] = useState("");  
+  const [showEditTask, setShowEditTask] = useState(false)
+  const [clickedTask, setClickedTask] = useState("");
 
   useEffect(() => {
     const storedName = localStorage.getItem("loggedInUser");
     if (storedName) {
       setUserName(storedName);
     }
+
+    // Gets Tasks from the DB
+    tasksServices.getTaskByUserID(storedName).then((res) => {
+      res.data.Tasks.forEach((task) => {
+        setTasks(
+          [...tasks, {
+            name: task.title, user: task.taskOwner,
+            description: task.description, status: task.status,
+            dueDay: task.due, id: task._id
+          }]
+        )
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -26,18 +40,47 @@ function TaskTracker() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (taskName.trim() === "") return;
-    const id = Math.floor(Math.random() * 10000 )+ (Math.random() * 99);
-    setTasks([...tasks, { name: taskName, user: userName, 
-      description: taskDescription, status: taskStatus,
-    dueDay: taskDueDay, id: id}]);
-    setTaskName("");
-    setDescription("");
-    setStatus("");
-    setDueDay("");
+
+    //Commenting out ID as db returns unique ID for each newly inserted task.
+    // const id = Math.floor(Math.random() * 10000) + (Math.random() * 99);
+
+    // Creates Task in the DB
+    var data = {
+      "task": {
+        "taskOwner": userName,
+        "title": taskName,
+        "description": taskDescription,
+        "status": taskStatus,
+        "due": taskDueDay
+      }
+    }
+
+    // Adds Task to DB and to the UI.
+
+    tasksServices.addTask(data)
+      .then((res) => {
+        setTasks([...tasks, {
+          title: taskName, user: userName,
+          description: taskDescription, status: taskStatus,
+          dueDay: taskDueDay, id: res.data._id
+        }]);
+
+
+        setTaskName("");
+        setDescription("");
+        setStatus("");
+        setDueDay("");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDelete = (taskToDelete) => {
     setTasks(tasks.filter((task) => task !== taskToDelete));
+
+    // Deletes Task from the DB.
+    tasksServices.deleteTask(taskToDelete.id)
   };
 
   const handleEdit = (id) => {
@@ -64,7 +107,7 @@ function TaskTracker() {
           value={taskDescription}
           onChange={(e) => setDescription(e.target.value)}
         />
-          <input
+        <input
           type="text"
           placeholder="Enter task status"
           value={taskStatus}
