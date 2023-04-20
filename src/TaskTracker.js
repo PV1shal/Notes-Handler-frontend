@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import tasksServices from "./Services/tasksServices";
+import ReactDatePicker from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker.css'
 import "./TaskTracker.css";
 
 function TaskTracker() {
@@ -33,7 +35,7 @@ function TaskTracker() {
         user: task.taskOwner,
         description: task.description,
         status: task.status,
-        dueDay: task.due,
+        dueDay: new Date(task.due).toISOString(),
         id: task._id
       }));
       setTasks(newTasks);
@@ -43,7 +45,7 @@ function TaskTracker() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (taskName.trim() === "") return;
+    if (taskName.trim() === "" || taskDescription.trim() === "" || taskStatus.trim() === "" || taskDueDay.toString() === "") return;
 
     //Commenting out ID as db returns unique ID for each newly inserted task.
     // const id = Math.floor(Math.random() * 10000) + (Math.random() * 99);
@@ -55,11 +57,11 @@ function TaskTracker() {
         "title": taskName,
         "description": taskDescription,
         "status": taskStatus,
-        "due": taskDueDay
+        "due": taskDueDay.toISOString(),
       }
     }
 
-    console.log(taskName, userName, taskDescription, taskStatus, taskDueDay);
+    // console.log(taskName, userName, taskDescription, taskStatus, taskDueDay);
 
     // Adds Task to DB and to the UI.
 
@@ -68,7 +70,7 @@ function TaskTracker() {
         setTasks([...tasks, {
           name: taskName, user: userName,
           description: taskDescription, status: taskStatus,
-          dueDay: taskDueDay, id: res.data._id
+          dueDay: taskDueDay.toISOString(), id: res.data._id
         }]);
 
         setTaskName("");
@@ -146,14 +148,14 @@ function TaskTracker() {
     <div className="container">
       <div>
         <h1>{userName}'s Tasks</h1>
-        <button onClick={() => SignOut()}>Logout</button>
+        <button title="logout" onClick={() => SignOut()}>Logout</button>
       </div>
 
-      <div>
+      <div className="New-Task-Form">
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Enter task name"
+            placeholder="Enter task title"
             value={taskName}
             onChange={(e) => setTaskName(e.target.value)}
           />
@@ -163,18 +165,31 @@ function TaskTracker() {
             value={taskDescription}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <input
+          {/* <input
             type="text"
             placeholder="Enter task status"
             value={taskStatus}
             onChange={(e) => setStatus(e.target.value)}
-          />
-          <input
+          /> */}
+          <select value={taskStatus} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">Select Status</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="On hold">On hold</option>
+          </select>
+
+          {/* <input
             type="text"
-            placeholder="Enter task due day"
+            placeholder="Enter task due date"
             value={taskDueDay}
             onChange={(e) => setDueDay(e.target.value)}
-          />
+          /> */}
+
+          <div>
+            <ReactDatePicker selected={taskDueDay} onChange={(date) => setDueDay(date)} />
+          </div>
+
           <button type="submit">Add Task</button>
         </form>
       </div>
@@ -194,7 +209,7 @@ function TaskTracker() {
           <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>
             <input
               type="text"
-              placeholder="Enter task name"
+              placeholder="Enter task title"
               value={clickedTask.name}
               onChange={(e) =>
                 setClickedTask({
@@ -214,7 +229,7 @@ function TaskTracker() {
                 })
               }
             />
-            <input
+            {/* <input
               type="text"
               placeholder="Enter task status"
               value={clickedTask.status}
@@ -224,10 +239,22 @@ function TaskTracker() {
                   status: e.target.value,
                 })
               }
-            />
-            <input
+            /> */}
+
+            <select value={clickedTask.status} onChange={(e) => setClickedTask({
+              ...clickedTask,
+              status: e.target.value,
+            })}>
+              <option value="">Select Status</option>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="On hold">On hold</option>
+            </select>
+
+            {/* <input
               type="text"
-              placeholder="Enter task due day"
+              placeholder="Enter task due date"
               value={clickedTask.dueDay}
               onChange={(e) =>
                 setClickedTask({
@@ -235,7 +262,21 @@ function TaskTracker() {
                   dueDay: e.target.value,
                 })
               }
-            />
+            /> */}
+
+            <div>
+              <ReactDatePicker
+                selected={new Date(clickedTask.dueDay)}
+                onChange={(date) =>
+                  setClickedTask({
+                    ...clickedTask,
+                    dueDay: date.toISOString(),
+                  })}
+                utcOffset={-420}
+              />
+            </div>
+
+
             <button type="submit">Edit Task</button>
           </form>
         )}

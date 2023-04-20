@@ -138,3 +138,15 @@
 .back-button {
     padding: 15px;
 }
+.New-Task-Form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+}
+
+.New-Task-Form button {
+    border-radius: 25px;
+    width: 125px;
+}
