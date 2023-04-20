@@ -101,7 +101,19 @@ function TaskTracker() {
     setShowEditTask(false);
 
     // // Update task in the DB
-    // // tasksServices.updateTask(id, updatedTask);
+
+    var data = {
+      "task": {
+        "_id": id,
+        "taskOwner": userName,
+        "title": updatedTask.name,
+        "description": updatedTask.description,
+        "status": updatedTask.status,
+        "due": updatedTask.dueDay
+      }
+    }
+    tasksServices.updateTask(data)
+      .catch((err) => { console.log(err) });
   };
 
   const filteredTasks = tasks.filter((task) => task.user === userName);
@@ -136,14 +148,6 @@ function TaskTracker() {
         />
         <button type="submit">Add Task</button>
       </form>
-      {/* <form>
-        <input
-          type="text"
-          placeholder="Enter your name"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-      </form> */}
 
       {showEditTask && (
         <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>

@@ -16,7 +16,7 @@ class TasksServices {
 
     updateTask = (data) => {
         return axios.put(
-            `https://lighthall-challenge2-backend.herokuapp.com/api/taskManager/tasks/${data.id}`,
+            `https://lighthall-challenge2-backend.herokuapp.com/api/taskManager/tasks`,
             data
         );
     };
