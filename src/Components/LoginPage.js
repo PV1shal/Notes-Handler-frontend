@@ -14,6 +14,10 @@ const LoginPage = () => {
 
 
     const validateUser = (e) => {
+        if (userName === undefined || userName === '') {
+            alert('Please enter a username');
+            return;
+        }
         e.preventDefault();
         loginServices.checkUser(userName)
             .then((response) => {
@@ -42,7 +46,7 @@ const LoginPage = () => {
             </p>
             <form onSubmit={(e) => validateUser(e)} style={{ display: "block" }}>
                 <input type="text" placeholder='Enter Username' onChange={(e) => setUserName(e.target.value)} />
-                <button type="submit">Login</button>
+                <button type="submit" >Login</button>
             </form>
         </div>
     );

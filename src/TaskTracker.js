@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import tasksServices from "./Services/tasksServices";
+import "./TaskTracker.css";
 
 function TaskTracker() {
   const [tasks, setTasks] = useState([]);
@@ -10,6 +11,8 @@ function TaskTracker() {
   const [taskDueDay, setDueDay] = useState('');
   const [showEditTask, setShowEditTask] = useState(false)
   const [clickedTask, setClickedTask] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [sortOption, setSortOption] = useState("name");
 
   useEffect(() => {
     const storedName = localStorage.getItem("loggedInUser");
@@ -34,6 +37,7 @@ function TaskTracker() {
         id: task._id
       }));
       setTasks(newTasks);
+      setIsLoading(false);
     });
   }, [userName]);
 
@@ -100,7 +104,7 @@ function TaskTracker() {
     setTasks(updatedTasks);
     setShowEditTask(false);
 
-    // // Update task in the DB
+    // Update task in the DB
 
     var data = {
       "task": {
@@ -116,104 +120,153 @@ function TaskTracker() {
       .catch((err) => { console.log(err) });
   };
 
-  const filteredTasks = tasks.filter((task) => task.user === userName);
+  const filteredTasks = tasks
+    .filter((task) => task.user === userName)
+    .sort((a, b) => {
+      if (sortOption === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortOption === "description") {
+        return a.description.localeCompare(b.description);
+      } else if (sortOption === "status") {
+        return a.status.localeCompare(b.status);
+      } else if (sortOption === "dueDay") {
+        return new Date(a.dueDay) - new Date(b.dueDay);
+      } else {
+        return 0;
+      }
+    });
+
+  const SignOut = () => {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "/";
+  };
+
 
   return (
     <div className="container">
-      <h1>Task Tracker {userName}</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter task name"
-          value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter task description"
-          value={taskDescription}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter task status"
-          value={taskStatus}
-          onChange={(e) => setStatus(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter task due day"
-          value={taskDueDay}
-          onChange={(e) => setDueDay(e.target.value)}
-        />
-        <button type="submit">Add Task</button>
-      </form>
+      <div>
+        <h1>{userName}'s Tasks</h1>
+        <button onClick={() => SignOut()}>Logout</button>
+      </div>
 
-      {showEditTask && (
-        <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>
+      <div>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Enter task name"
-            value={clickedTask.name}
-            onChange={(e) =>
-              setClickedTask({
-                ...clickedTask,
-                name: e.target.value,
-              })
-            }
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
           />
           <input
             type="text"
             placeholder="Enter task description"
-            value={clickedTask.description}
-            onChange={(e) =>
-              setClickedTask({
-                ...clickedTask,
-                description: e.target.value,
-              })
-            }
+            value={taskDescription}
+            onChange={(e) => setDescription(e.target.value)}
           />
           <input
             type="text"
             placeholder="Enter task status"
-            value={clickedTask.status}
-            onChange={(e) =>
-              setClickedTask({
-                ...clickedTask,
-                status: e.target.value,
-              })
-            }
+            value={taskStatus}
+            onChange={(e) => setStatus(e.target.value)}
           />
           <input
             type="text"
             placeholder="Enter task due day"
-            value={clickedTask.dueDay}
-            onChange={(e) =>
-              setClickedTask({
-                ...clickedTask,
-                dueDay: e.target.value,
-              })
-            }
+            value={taskDueDay}
+            onChange={(e) => setDueDay(e.target.value)}
           />
-          <button type="submit">Edit Task</button>
+          <button type="submit">Add Task</button>
         </form>
-      )}
+      </div>
 
+      <div>
+        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+          <option value="">Sort By</option>
+          <option value="name">Name</option>
+          <option value="description">Description</option>
+          <option value="status">Status</option>
+          <option value="dueDay">Due</option>
+        </select>
+      </div>
 
-      <ul>
-        {filteredTasks.map((task, index) => (
-          <li key={index}>
-            <div>
-              <p>{task.name}</p>
-              <p>Description: {task.description}</p>
-              <p>Status: {task.status}</p>
-              <p>Due Day: {task.dueDay}</p>
-            </div>
-            <button onClick={() => handleDelete(task)}>Delete</button>
-            <button onClick={() => handleEdit(task.id)}>Edit</button>
-          </li>
-        ))}
-      </ul>
+      <div>
+        {showEditTask && (
+          <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>
+            <input
+              type="text"
+              placeholder="Enter task name"
+              value={clickedTask.name}
+              onChange={(e) =>
+                setClickedTask({
+                  ...clickedTask,
+                  name: e.target.value,
+                })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Enter task description"
+              value={clickedTask.description}
+              onChange={(e) =>
+                setClickedTask({
+                  ...clickedTask,
+                  description: e.target.value,
+                })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Enter task status"
+              value={clickedTask.status}
+              onChange={(e) =>
+                setClickedTask({
+                  ...clickedTask,
+                  status: e.target.value,
+                })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Enter task due day"
+              value={clickedTask.dueDay}
+              onChange={(e) =>
+                setClickedTask({
+                  ...clickedTask,
+                  dueDay: e.target.value,
+                })
+              }
+            />
+            <button type="submit">Edit Task</button>
+          </form>
+        )}
+      </div>
+
+      {
+        isLoading ? (
+          <div className="formLoader">
+            <ul className="formLoading">
+              <li></li>
+              <li></li>
+              <li></li>
+            </ul>
+          </div>
+        ) : (
+            <ul>
+              {filteredTasks.map((task, index) => (
+                <li key={index}>
+                  <div>
+                    <p>Task Title: {task.name}</p>
+                    <p>Description: {task.description}</p>
+                    <p>Status: {task.status}</p>
+                    <p>Due: {task.dueDay}</p>
+                  </div>
+                  <button onClick={() => handleDelete(task)}>Delete</button>
+                  <button onClick={() => handleEdit(task.id)}>Edit</button>
+                </li>
+              ))}
+            </ul>
+        )
+      }
     </div>
   );
 }
