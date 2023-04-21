@@ -15,6 +15,7 @@ function TaskTracker() {
   const [clickedTask, setClickedTask] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [sortOption, setSortOption] = useState("name");
+  const [isAssending, setIsAssending] = useState(true);
 
   useEffect(() => {
     const storedName = localStorage.getItem("loggedInUser");
@@ -126,13 +127,29 @@ function TaskTracker() {
     .filter((task) => task.user === userName)
     .sort((a, b) => {
       if (sortOption === "name") {
-        return a.name.localeCompare(b.name);
+        if (isAssending) {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b.name.localeCompare(a.name);
+        }
       } else if (sortOption === "description") {
-        return a.description.localeCompare(b.description);
+        if (isAssending) {
+          return a.description.localeCompare(b.description);
+        } else {
+          return b.description.localeCompare(a.description);
+        }
       } else if (sortOption === "status") {
-        return a.status.localeCompare(b.status);
+        if (isAssending) {
+          return a.status.localeCompare(b.status);
+        } else {
+          return b.status.localeCompare(a.status);
+        }
       } else if (sortOption === "dueDay") {
-        return new Date(a.dueDay) - new Date(b.dueDay);
+        if (isAssending) {
+          return new Date(a.dueDay) - new Date(b.dueDay);
+        } else {
+          return new Date(b.dueDay) - new Date(a.dueDay);
+        }
       } else {
         return 0;
       }
@@ -147,7 +164,7 @@ function TaskTracker() {
   return (
     <div className="container">
       <div>
-        <h1>Welcome to you tasks, {userName}</h1>
+        <h1>Welcome to your tasks, {userName}</h1>
         <button className="logout" title="logout" onClick={() => SignOut()}>Logout</button>
       </div>
 
@@ -175,22 +192,32 @@ function TaskTracker() {
           </select>
 
           <div>
-            <ReactDatePicker selected={taskDueDay} onChange={(date) => setDueDay(date)} />
+            <ReactDatePicker placeholderText="Select due date" selected={taskDueDay} onChange={(date) => setDueDay(date)} />
           </div>
 
           <button type="submit">Add Task</button>
         </form>
       </div>
 
-      <div className="Sort">
-        Sort by:
-        <select style={{ marginLeft: "10px", marginBottom: "20px" }} value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-          <option value="">Sort By</option>
-          <option value="name">Name</option>
-          <option value="description">Description</option>
-          <option value="status">Status</option>
-          <option value="dueDay">Due</option>
-        </select>
+      <div style={{ display: "flex" }}>
+        <div className="Sort">
+          Sort by:
+          <select style={{ marginLeft: "10px", marginBottom: "20px" }} value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+            <option value="">Sort By</option>
+            <option value="name">Title</option>
+            <option value="description">Description</option>
+            <option value="status">Status</option>
+            <option value="dueDay">Due Date</option>
+          </select>
+        </div>
+
+        <div className="Sort" style={{ marginLeft: "10px" }}>
+          Ascending:
+          <label className="switch">
+            <input type="checkbox" checked={isAssending} onChange={(e) => setIsAssending(e.target.checked)} />
+            <span className="slider round"></span>
+          </label>
+        </div>
       </div>
 
       <div>
