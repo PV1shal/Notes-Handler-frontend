@@ -14,8 +14,8 @@ function TaskTracker() {
   const [showEditTask, setShowEditTask] = useState(false)
   const [clickedTask, setClickedTask] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [sortOption, setSortOption] = useState("name");
-  const [isAssending, setIsAssending] = useState(true);
+  const [sortOption, setSortOption] = useState('');
+  const [isAscending, setIsAscending] = useState(false);
 
   useEffect(() => {
     const storedName = localStorage.getItem("loggedInUser");
@@ -123,37 +123,38 @@ function TaskTracker() {
       .catch((err) => { console.log(err) });
   };
 
-  const filteredTasks = tasks
-    .filter((task) => task.user === userName)
-    .sort((a, b) => {
-      if (sortOption === "name") {
-        if (isAssending) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return b.name.localeCompare(a.name);
-        }
-      } else if (sortOption === "description") {
-        if (isAssending) {
-          return a.description.localeCompare(b.description);
-        } else {
-          return b.description.localeCompare(a.description);
-        }
-      } else if (sortOption === "status") {
-        if (isAssending) {
-          return a.status.localeCompare(b.status);
-        } else {
-          return b.status.localeCompare(a.status);
-        }
-      } else if (sortOption === "dueDay") {
-        if (isAssending) {
-          return new Date(a.dueDay) - new Date(b.dueDay);
-        } else {
-          return new Date(b.dueDay) - new Date(a.dueDay);
-        }
-      } else {
-        return 0;
-      }
-    });
+  // update the filteredTasks array
+const filteredTasks = tasks
+.filter((task) => task.user === userName)
+.sort((a, b) => {
+  let sortOrder = isAscending ? 1 : -1;
+  if (sortOption === "title-asc") {
+    return sortOrder * a.name.localeCompare(b.name);
+  } else if (sortOption === "title-desc") {
+    return sortOrder * b.name.localeCompare(a.name);
+  } else if (sortOption === "description-asc") {
+    return sortOrder * a.description.localeCompare(b.description);
+  } else if (sortOption === "description-desc") {
+    return sortOrder * b.description.localeCompare(a.description);
+  } else if (sortOption === "status-new") {
+    return sortOrder * (a.status === "Not Started" ? 1 : -1);
+  } else if (sortOption === "status-ongoing") {
+    return sortOrder * (a.status === "In Progress" ? 1 : -1);
+  } else if (sortOption === "status-hold") {
+    return sortOrder * (a.status === "On hold" ? 1 : -1);
+  } else if (sortOption === "status-completed") {
+    return sortOrder * (a.status === "Completed" ? 1 : -1);
+  } else if (sortOption === "dueDay-asc") {
+    return sortOrder * (new Date(a.dueDay) - new Date(b.dueDay));
+  } else if (sortOption === "dueDay-desc") {
+    return sortOrder * (new Date(b.dueDay) - new Date(a.dueDay));
+  }
+});
+
+console.log(filteredTasks); // This will log the filtered and sorted tasks in the console
+
+
+
 
   const SignOut = () => {
     localStorage.removeItem("loggedInUser");
@@ -164,7 +165,7 @@ function TaskTracker() {
   return (
     <div className="container">
       <div>
-        <h1>Welcome to your tasks, {userName}</h1>
+        <h1>Welcome, {userName}</h1>
         <button className="logout" title="logout" onClick={() => SignOut()}>Logout</button>
       </div>
 
@@ -177,6 +178,7 @@ function TaskTracker() {
             onChange={(e) => setTaskName(e.target.value)}
           />
           <input
+            className="descriptionInput"
             type="text"
             placeholder="Enter task description"
             value={taskDescription}
@@ -187,38 +189,43 @@ function TaskTracker() {
             <option value="">Select Status</option>
             <option value="Not Started">Not Started</option>
             <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
             <option value="On hold">On hold</option>
+            <option value="Completed">Completed</option>
           </select>
 
-          <div>
+          <div className="dueDateInput">
             <ReactDatePicker placeholderText="Select due date" selected={taskDueDay} onChange={(date) => setDueDay(date)} />
           </div>
 
-          <button type="submit">Add Task</button>
+          
         </form>
-      </div>
-
-      <div style={{ display: "flex" }}>
-        <div className="Sort">
-          Sort by:
-          <select style={{ marginLeft: "10px", marginBottom: "20px" }} value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-            <option value="">Sort By</option>
-            <option value="name">Title</option>
-            <option value="description">Description</option>
-            <option value="status">Status</option>
-            <option value="dueDay">Due Date</option>
-          </select>
-        </div>
-
-        <div className="Sort" style={{ marginLeft: "10px" }}>
-          Ascending:
-          <label className="switch">
-            <input type="checkbox" checked={isAssending} onChange={(e) => setIsAssending(e.target.checked)} />
-            <span className="slider round"></span>
-          </label>
+        <div>
+          <button type="submit">Add Task</button>
         </div>
       </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexDirection: "row", width: "400px", marginLeft: "10px", marginTop: "0px"}}>
+        <h1>Your Tasks</h1>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ marginRight: "1px", fontSize: "15px" }}>↑↓</span>
+          <div className="select-container">
+            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+              <option value="">Sort by:</option>
+              <option value="title-asc">Title (Ascending)</option>
+              <option value="title-desc">Title (Descending)</option>
+              <option value="description-asc">Description (Ascending)</option>
+              <option value="description-desc">Description (Descending)</option>
+              <option value="status-new">Status (Not Started)</option>
+              <option value="status-ongoing">Status (In Progress)</option>
+              <option value="status-hold">Status (On Hold)</option>
+              <option value="status-completed">Status (Completed)</option>
+              <option value="dueDay-asc">Due Day (Ascending)</option>
+              <option value="dueDay-desc">Due Day (Descending)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
 
       <div>
         {showEditTask && (
@@ -299,8 +306,8 @@ function TaskTracker() {
                     <p className="taskDue">{task.dueDay}</p>
                   </div>
                   <div className="optionsButtons">
-                    <button style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleDelete(task)}>Delete</button>
-                    <button style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleEdit(task.id)}>Edit</button>
+                    <button className="editButton" style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleEdit(task.id)}>Edit</button>
+                    <button className="deleteButton" style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleDelete(task)}>Delete</button>
                   </div>
                 </li>
               ))}

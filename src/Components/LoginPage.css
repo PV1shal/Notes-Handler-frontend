@@ -18,10 +18,14 @@
 }
 
 .LoginDiv h1 {
+    display: inline-block;
+    padding-bottom: 9px;
     font-size: 2.5rem;
     line-height: 1.25;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.9);
+    background-image: linear-gradient(to bottom, rgb(0, 153, 255), rgb(102, 191, 250));;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-bottom: -10px;
 }
 
@@ -29,7 +33,7 @@
     font-size: 1rem;
     line-height: 1.42857;
     font-weight: 400;
-    color: rgba(0, 0, 0, 0.9);
+    color: linear-gradient(to bottom, rgb(0, 153, 255), rgb(102, 191, 250));;
     margin-bottom: 2.5rem;
 }
 
@@ -45,11 +49,11 @@
 }
 
 .LoginDiv input:hover {
-    outline: 2px solid #0078d4;
+    outline: 2px solid rgb(0, 153, 255);
 }
 
 .LoginDiv input:focus {
-    outline: 2px solid #0078d4;
+    outline: 2px solid rgb(0, 153, 255);
 }
 
 .LoginDiv button {
@@ -61,12 +65,16 @@
     margin-top: 1rem;
     font-size: 1rem;
     font-weight: 500;
-    background: #0078d4;
+    background: linear-gradient(to bottom, rgb(0, 153, 255), rgb(102, 191, 250));
     color: #fff;
     cursor: pointer;
     display: inline-block;
 }
 
 .LoginDiv button:hover {
-    background: #0063b1;
+    background: linear-gradient(to bottom, rgb(102, 191, 250), rgb(0, 153, 255));
+}
+
+.LoginDiv button:active {
+    background: linear-gradient(to bottom, rgba(0, 153, 255, 0.639), rgba(0, 151, 252, 0.589));
 }
