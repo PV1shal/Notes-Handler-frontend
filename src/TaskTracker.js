@@ -147,8 +147,8 @@ function TaskTracker() {
   return (
     <div className="container">
       <div>
-        <h1>{userName}'s Tasks</h1>
-        <button title="logout" onClick={() => SignOut()}>Logout</button>
+        <h1>Welcome to you tasks, {userName}</h1>
+        <button className="logout" title="logout" onClick={() => SignOut()}>Logout</button>
       </div>
 
       <div className="New-Task-Form">
@@ -165,12 +165,7 @@ function TaskTracker() {
             value={taskDescription}
             onChange={(e) => setDescription(e.target.value)}
           />
-          {/* <input
-            type="text"
-            placeholder="Enter task status"
-            value={taskStatus}
-            onChange={(e) => setStatus(e.target.value)}
-          /> */}
+
           <select value={taskStatus} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Select Status</option>
             <option value="Not Started">Not Started</option>
@@ -178,13 +173,6 @@ function TaskTracker() {
             <option value="Completed">Completed</option>
             <option value="On hold">On hold</option>
           </select>
-
-          {/* <input
-            type="text"
-            placeholder="Enter task due date"
-            value={taskDueDay}
-            onChange={(e) => setDueDay(e.target.value)}
-          /> */}
 
           <div>
             <ReactDatePicker selected={taskDueDay} onChange={(date) => setDueDay(date)} />
@@ -194,8 +182,9 @@ function TaskTracker() {
         </form>
       </div>
 
-      <div>
-        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+      <div className="Sort">
+        Sort by:
+        <select style={{ marginLeft: "10px", marginBottom: "20px" }} value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
           <option value="">Sort By</option>
           <option value="name">Name</option>
           <option value="description">Description</option>
@@ -206,79 +195,60 @@ function TaskTracker() {
 
       <div>
         {showEditTask && (
-          <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>
-            <input
-              type="text"
-              placeholder="Enter task title"
-              value={clickedTask.name}
-              onChange={(e) =>
-                setClickedTask({
-                  ...clickedTask,
-                  name: e.target.value,
-                })
-              }
-            />
-            <input
-              type="text"
-              placeholder="Enter task description"
-              value={clickedTask.description}
-              onChange={(e) =>
-                setClickedTask({
-                  ...clickedTask,
-                  description: e.target.value,
-                })
-              }
-            />
-            {/* <input
-              type="text"
-              placeholder="Enter task status"
-              value={clickedTask.status}
-              onChange={(e) =>
-                setClickedTask({
-                  ...clickedTask,
-                  status: e.target.value,
-                })
-              }
-            /> */}
-
-            <select value={clickedTask.status} onChange={(e) => setClickedTask({
-              ...clickedTask,
-              status: e.target.value,
-            })}>
-              <option value="">Select Status</option>
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="On hold">On hold</option>
-            </select>
-
-            {/* <input
-              type="text"
-              placeholder="Enter task due date"
-              value={clickedTask.dueDay}
-              onChange={(e) =>
-                setClickedTask({
-                  ...clickedTask,
-                  dueDay: e.target.value,
-                })
-              }
-            /> */}
-
-            <div>
-              <ReactDatePicker
-                selected={new Date(clickedTask.dueDay)}
-                onChange={(date) =>
+          <div className="New-Task-Form">
+            <h2>Edit Task:</h2>
+            <form onSubmit={submitEdit.bind(null, clickedTask.id, clickedTask)}>
+              <input
+                type="text"
+                placeholder="Enter task title"
+                value={clickedTask.name}
+                onChange={(e) =>
                   setClickedTask({
                     ...clickedTask,
-                    dueDay: date.toISOString(),
-                  })}
-                utcOffset={-420}
+                    name: e.target.value,
+                  })
+                }
               />
-            </div>
+              <input
+                type="text"
+                placeholder="Enter task description"
+                value={clickedTask.description}
+                onChange={(e) =>
+                  setClickedTask({
+                    ...clickedTask,
+                    description: e.target.value,
+                  })
+                }
+              />
+
+              <select value={clickedTask.status} onChange={(e) => setClickedTask({
+                ...clickedTask,
+                status: e.target.value,
+              })}>
+                <option value="">Select Status</option>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="On hold">On hold</option>
+              </select>
+
+              <div>
+                <ReactDatePicker
+                  // showIcon
+                  selected={new Date(clickedTask.dueDay)}
+                  onChange={(date) =>
+                    setClickedTask({
+                      ...clickedTask,
+                      dueDay: date.toISOString(),
+                    })}
+                  utcOffset={-420}
+                />
+              </div>
 
 
-            <button type="submit">Edit Task</button>
-          </form>
+              <button type="submit">Edit Task</button>
+            </form>
+          </div>
         )}
       </div>
 
@@ -294,15 +264,17 @@ function TaskTracker() {
         ) : (
             <ul>
               {filteredTasks.map((task, index) => (
-                <li key={index}>
-                  <div>
-                    <p>Task Title: {task.name}</p>
-                    <p>Description: {task.description}</p>
-                    <p>Status: {task.status}</p>
-                    <p>Due: {task.dueDay}</p>
+                <li key={index} className="TaskCard" >
+                  <div className="taskDetails">
+                    <p className="taskTitle">{task.name}</p>
+                    <p className="taskDesc">{task.description}</p>
+                    <p className="taskStatus">{task.status}</p>
+                    <p className="taskDue">{task.dueDay}</p>
                   </div>
-                  <button onClick={() => handleDelete(task)}>Delete</button>
-                  <button onClick={() => handleEdit(task.id)}>Edit</button>
+                  <div className="optionsButtons">
+                    <button style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleDelete(task)}>Delete</button>
+                    <button style={{ borderRadius: "5px", height: "40px" }} onClick={() => handleEdit(task.id)}>Edit</button>
+                  </div>
                 </li>
               ))}
             </ul>
